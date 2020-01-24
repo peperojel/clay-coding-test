@@ -13,7 +13,15 @@ Las tablas relevantes son:
 **SQL**
 
 ```sql
--
+SELECT arrendatario.nombre, arrendatario.apellido
+FROM casa
+INNER JOIN arrienda
+	ON casa.id = arrienda.id_casa
+        AND casa.calle = 'Av. Vitacura'
+        AND casa.numero = 4380
+	    AND casa.comuna = 'Vitacura'
+INNER JOIN arrendatario
+	ON arrienda.id_arrendatario = arrendatario.id;
 ```
 
 **MongoDB**
@@ -28,11 +36,18 @@ Las tablas relevantes son:
 
 Las tablas relevantes son:
 
+- dueño(id, rut, nombre, apellido)
+- casa(id, id_dueño, numero, calle, comuna)
 
 **SQL**
 
 ```sql
--
+SELECT dueño.nombre, dueño.apellido
+FROM casa
+INNER JOIN dueño
+	ON casa.id_dueño = dueño.id
+GROUP BY casa.id_dueño
+HAVING COUNT(*) >= 3;
 ```
 
 **MongoDB**
@@ -47,10 +62,20 @@ Las tablas relevantes son:
 
 Las tablas relevantes son:
 
+- arrienda(id_arrendatario, id_casa, deuda)
+- casa(id, id_dueño, numero, calle, comuna)
+- dueño(id, rut, nombre, apellido)
+
 **SQL**
 
 ```sql
--
+SELECT SUM(deuda) as deuda_total, dueño.nombre, dueño.apellido
+FROM arrienda
+INNER JOIN casa
+	ON arrienda.id_casa = casa.id
+INNER JOIN dueño
+	ON casa.id_dueño = dueño.id
+GROUP BY casa.id_dueño
 ```
 
 **MongoDB**
