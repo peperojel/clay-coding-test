@@ -26,8 +26,32 @@ INNER JOIN arrendatario
 
 **MongoDB**
 
-```
--
+```mongodb
+db.casa.aggregate([
+	{
+		$match: {
+			calle: "Av. Vitacura",
+			número: 4380,
+			comuna: "Vitacura"
+		}
+	},
+	{ 
+		$lookup: {
+			from: "arriendo",
+			localField: "_id",
+			foreignField: "id_casa",
+			as: "arriendos"
+		}
+	},
+	{
+		$lookup: {
+			from: "arrendatario",
+			localField: "arriendos.id_arrendatario",
+			foreignField: "_id",
+			as: "arrendatarios"
+		}
+	}
+])
 ```
 
 ## Pregunta 2
@@ -53,7 +77,27 @@ HAVING COUNT(*) >= 3;
 **MongoDB**
 
 ```
--
+db.casa.aggregate([
+	{
+		$lookup: {
+			from: "dueño",
+			localField: "id_dueño",
+			foreignField: "_id",
+			as: "dueño"
+		}
+	},
+	{
+		$group: {
+			_id: "$dueño",
+			count: {$sum: 1}
+		}
+	},
+	{
+		$match: {
+			count: {$gte: 3} 
+		}
+	}
+])
 ```
 
 ## Pregunta 3
@@ -81,5 +125,31 @@ GROUP BY casa.id_dueño
 **MongoDB**
 
 ```
--
+db.arrienda.aggregate([
+	{
+		$lookup:
+		{
+			from: "casa",
+			localField: "id_casa",
+			foreignField: "_id",
+			as: "casa"
+		}
+	}, 
+	{
+		$lookup:
+		{
+			from: "dueño",
+			localField: "casa.id_dueño",
+			foreignField: "_id",
+			as: "dueño"
+		}
+	},
+	{
+		$group:
+		{
+			_id: "$dueño",
+			deuda_total: {$sum: "$deuda"}
+		}
+	}
+])
 ```
